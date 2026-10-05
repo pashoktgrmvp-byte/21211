@@ -1,1 +1,208 @@
-assa
+using System.Data.Common;
+using System.Reflection.PortableExecutable;
+using System.Text;
+
+int DBwater = 1000;
+int DBcoffee = 500;
+int DBmilk = 700;
+int DBsugar = 250;
+
+string[]  DBCoffeename = ["latte","espresso","Raf"];
+
+int[,] DBcoffee_cost ={{150, 50, 100} , {150,100,0}, {150,70,0}};
+int[] DBcoffee_price =[300, 250 , 220];
+int DBcup = 5;
+int DBbalance = 0;
+//
+
+
+static string BuyCoffee(
+    in string choice_coffee,
+     int payment,
+      int choice_sugar,
+       ref int water,
+        ref int coffee,
+         ref int sugar,
+          ref int milk,
+           in string[] coffeename,
+            in int[] coffee_price,
+                in int[,] coffeeCost,
+                ref int cup,
+                ref int balance,
+                out string check)
+{
+    
+    int indexCoffee =  coffeename.IndexOf(choice_coffee);
+    
+    if (payment < coffee_price[indexCoffee])
+    {
+        throw new Exception("Денег не хватило:");
+
+    }
+   
+
+
+if ( cup < 1 || water < coffeeCost[indexCoffee, 0])
+    {
+        throw new Exception( "Не хватает воды.");
+           
+    }
+
+if ( coffee < 2 || coffee < coffeeCost[indexCoffee, 0])
+    {
+        throw new Exception( "Не хватает кофе.");
+           
+    }
+if ( milk < 3 || milk < coffeeCost[indexCoffee, 0])
+    {
+        throw new Exception ("Не хватает молока.");
+           
+    }
+
+if ( sugar < 4 || sugar < coffeeCost[indexCoffee, 0])
+    {
+        throw new Exception( "Не хватает сахара.");
+           
+    }
+
+    
+    balance += payment; 
+
+    check = Convert.ToString(payment); 
+    
+    string result = $"{choice_coffee}, готов";
+
+    if(choice_sugar <= sugar)
+    {
+        result += $"(choice_sugar) кусочками сахара";
+    }
+
+        
+    check = Convert.ToString(payment - coffee_price[indexCoffee]);
+    return result;
+}    
+// string res = BuyCoffee("latte", 500, 2, out string check);
+
+
+string g = BuyCoffee("latte", 6650, 0, ref DBwater, ref DBcoffee, ref DBmilk, ref DBsugar, DBCoffeename,  DBcoffee_price ,DBcoffee_cost, ref DBcup,ref DBbalance,out string check);
+
+
+Console.WriteLine(g);
+
+
+
+
+// ===== Класс, хранящий состояние кофемашины =====
+public class CoffeeMachineState
+{
+    public int DBwater = 1000;
+    public int DBcoffee = 500;
+    public int DBmilk = 700;
+    public int DBsugar = 250;
+
+    public string[] DBCoffeename = { "latte", "espresso", "Raf" };
+
+    public int[,] DBcoffee_cost =
+    {
+        { 150, 50, 100 },
+        { 150, 100, 0 },
+        { 150, 70, 0 }
+    };
+
+    public int[] DBcoffee_price = { 300, 250, 220 };
+    public int DBcup = 5;
+    public int DBbalance = 0;
+}
+
+// ===== Класс с методом покупки =====
+public class CoffeeMachine
+{
+    public static string BuyCoffee(
+        in string choice_coffee,
+        int payment,
+        int choice_sugar,
+        ref int water,
+        ref int coffee,
+        ref int sugar,
+        ref int milk,
+        in string[] coffeename,
+        in int[] coffee_price,
+        in int[,] coffeeCost,
+        ref int cup,
+        ref int balance,
+        out string check)
+    {
+        int indexCoffee = Array.IndexOf(coffeename, choice_coffee);
+
+        if (indexCoffee < 0)
+        {
+            throw new Exception("Такого напитка нет: " + choice_coffee);
+        }
+
+        if (payment < coffee_price[indexCoffee])
+        {
+            throw new Exception("Денег не хватило:");
+        }
+
+        if (cup < 1 || water < coffeeCost[indexCoffee, 0])
+        {
+            throw new Exception("Не хватает воды.");
+        }
+
+        if (coffee < 2 || coffee < coffeeCost[indexCoffee, 0])
+        {
+            throw new Exception("Не хватает кофе.");
+        }
+        if (milk < 3 || milk < coffeeCost[indexCoffee, 0])
+        {
+            throw new Exception("Не хватает молока.");
+        }
+
+        if (sugar < 4 || sugar < coffeeCost[indexCoffee, 0])
+        {
+            throw new Exception("Не хватает сахара.");
+        }
+
+        balance += payment;
+
+        check = Convert.ToString(payment);
+
+        string result = $"{choice_coffee}, готов";
+
+        if (choice_sugar <= sugar)
+        {
+            result += $"({choice_sugar}) кусочками сахара";
+        }
+
+        check = Convert.ToString(payment - coffee_price[indexCoffee]);
+        return result;
+    }
+}
+
+// ===== Точка входа =====
+public class Prog
+{
+    public static void Main()
+    {
+        // Инициализация состояния через класс
+        var state = new CoffeeMachineState();
+
+        string g = CoffeeMachine.BuyCoffee(
+            "latte",
+            6650,
+            0,
+            ref state.DBwater,
+            ref state.DBcoffee,
+            ref state.DBmilk,
+            ref state.DBsugar,
+            state.DBCoffeename,
+            state.DBcoffee_price,
+            state.DBcoffee_cost,
+            ref state.DBcup,
+            ref state.DBbalance,
+            out string check);
+
+        Console.WriteLine(g);
+        Console.WriteLine(check);
+    }
+}
